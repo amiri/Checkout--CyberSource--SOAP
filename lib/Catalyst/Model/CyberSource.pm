@@ -77,7 +77,7 @@ sub _get_agent {
 
 sub _get_response {
     my $self = shift;
-    return Warner::Web::Model::Checkout::Response->new;
+    return Catalyst::Model::CyberSource::Response->new;
 }
 
 
