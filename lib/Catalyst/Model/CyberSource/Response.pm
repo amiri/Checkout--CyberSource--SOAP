@@ -4,8 +4,6 @@ use Moose;
 use Business::CreditCard;
 use namespace::autoclean;
 
-extends 'Catalyst::Model';
-
 has 'error' => (
     is      => 'ro',
     isa     => 'HashRef',
@@ -389,22 +387,22 @@ __END__
 <Model::CyberSource>
     id  your_cybersource_id
     key your cybersource_key
-<payment_columns>
-    address1
-    amount
-    card_type
-    city
-    country
-    decision
-    email
-    expmonth
-    expyear
-    firstname
-    ip
-    lastname
-    postcode
-    reasoncode
-    refcode
-    state    
-</payment_columns>
+    <payment_columns>
+        address1
+        amount
+        card_type
+        city
+        country
+        decision
+        email
+        expmonth
+        expyear
+        firstname
+        ip
+        lastname
+        postcode
+        reasoncode
+        refcode
+        state    
+    </payment_columns>
 </Model::CyberSource>
