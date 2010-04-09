@@ -27,7 +27,7 @@ like( $cy2->handler->{100}->(), qr/Success/, 'Spot check: C::M::C::Response->han
 my $data = {
     'expiry.month'=> '09',
     'expiry.year' => '2010',
-    address1      => '1253 S Ogden Drive #4',
+    address1      => '15 Top Drive #12',
     amount        => '500',
     cardnumber    => '4111-1111-1111-1111',
     city          => 'Los Angeles',
@@ -40,7 +40,7 @@ my $data = {
     lastname      => 'Barksdale',
     quantity      => '1',
     state           => 'CA',
-    zip           => '90019',
+    zip           => '90064',
 };
 
 ok($cy->process($data), 'C::M::CyberSource can process my correct data');
@@ -51,7 +51,7 @@ ok(!$cy->response->{error}, 'No error exists');
 
 my $cy3 = Catalyst::Model::CyberSource->new;
 my $data2 = {
-    address1      => '1253 S Ogden Drive #4',
+    address1      => '48 Blueberry Hill #2',
     amount        => '500',
     cardnumber    => '4111111111111111',
     city          => 'Los Angeles',
@@ -61,7 +61,7 @@ my $data2 = {
     'expiry.year' => '2010',
     firstname     => 'Amiri',
     lastname      => 'Barksdale',
-    zip           => '90019',
+    zip           => '90016',
     country       => 'USA',
     email         => 'amiri@metalabel.com',
     quantity      => '1',
