@@ -7,6 +7,16 @@ use namespace::autoclean;
 
 extends 'Catalyst::Model';
 
+has 'id' => (
+    is  => 'ro',
+    isa => 'Str',
+);
+
+has 'key' => (
+    is  => 'ro',
+    isa => 'Str',
+);
+
 has 'response' => (
     is      => 'rw',
     isa     => 'Catalyst::Model::CyberSource::Response',
