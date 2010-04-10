@@ -1,55 +1,93 @@
-Catalyst-Model-CyberSource
+NAME
+    CyberSource::SOAP::Checkout - A Modern Perl interface to CyberSource's
+    SOAP API.
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+SYNOPSIS
+    This is for single transactions of variable quantity.
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+    You can use this as a standalone module by sending it a payment
+    information hashref. You will receive a C::S::Checkout::Response object
+    containing either a success message or an error message. If successful,
+    you will also receive a payment_info hashref, suitable for storing in
+    your database.
+
+    You must map the keys in the hashref you send (which also sets the keys
+    for the payment_info hashref you receive back). CyberSource uses
+    camelCased and otherwise idiosyncratic identifiers here, so this mapping
+    cannot be avoided.
+
+    You can use this in a Catalyst application by using
+    Catalyst::Model::Adaptor and setting your configuration file somewhat
+    like this:
+
+        <Model::Checkout>
+            class   CyberSource::SOAP::Checkout
+            <args>
+                id  your_cybersource_id
+                key your cybersource_key
+                <payment_columns>
+                    address1
+                    amount
+                    card_type
+                    city
+                    country
+                    decision
+                    email
+                    expmonth
+                    expyear
+                    firstname
+                    ip
+                    lastname
+                    postcode
+                    reasoncode
+                    refcode
+                    state    
+                </payment_columns>
+            </args>
+        </Model::Checkout>
+
+    So that in your payment processing controller you would get validated
+    data back from a shopping cart or other form and do something like this:
+
+        # If your checkout form is valid, call C::S::Checkout's process method:
+
+        my $response = $c->model('Checkout')->process( $c->req->params );
 
 
-INSTALLATION
+        # Check the response object, branch accordingly.
 
-To install this module, run the following commands:
+        if ( $response->success ) {
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+            # Store a payment in your database
 
-SUPPORT AND DOCUMENTATION
+            my $payment = $c->model('Payment')->create($response->payment_info);
 
-After installing, you can find documentation for this module with the
-perldoc command.
+            $c->flash( status_msg => $response->success->{message} );
+            $c->res->redirect($c->uri_for('/Yay! Money!')); # Don't do this.
+    
+        }
+    
+        else {
+            $c->stash( error_msg => $response->error->{message} );
+            return;
+        }
 
-    perldoc Catalyst::Model::CyberSource
+WHY?
+    Folks often have a need for simple and quick, but "enterprise-level"
+    payment-gateway integration. CyberSource's Simple Order API still
+    requires that you compile a binary, and it won't compile on 64-bit
+    processors (no, not OSes, but processors, i.e., what I imagine to be
+    most development workstations by now). So you have to use the SOAP API,
+    which is unwieldy, not least because it uses XML. May no one struggle
+    with this again. :)
 
-You can also look for information at:
+AUTHOR
+    Amiri Barksdale <amiri@metalabel.com>
 
-    RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Catalyst-Model-CyberSource
+LICENSE
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Catalyst-Model-CyberSource
-
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Catalyst-Model-CyberSource
-
-    Search CPAN
-        http://search.cpan.org/dist/Catalyst-Model-CyberSource/
-
-
-LICENSE AND COPYRIGHT
-
-Copyright (C) 2010 Amiri Barksdale
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
+SEE ALSO
+    Catalyst::Model::Adaptor Business::OnlinePayment::CyberSource
 

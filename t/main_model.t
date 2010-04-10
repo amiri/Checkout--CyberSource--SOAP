@@ -6,13 +6,13 @@ use Test::More;
 use Test::Moose;
 use Data::Dumper;
 
-BEGIN { use_ok 'Catalyst::Model::CyberSource' }
-BEGIN { use_ok 'Catalyst::Model::CyberSource::Response' }
+BEGIN { use_ok 'CyberSource::SOAP::Checkout' }
+BEGIN { use_ok 'CyberSource::SOAP::Checkout::Response' }
 
-my $cy = Catalyst::Model::CyberSource->new( id => $ENV{CYBS_ID}, key => $ENV{CYBS_KEY});
-my $cy2 = Catalyst::Model::CyberSource::Response->new;
+my $cy = CyberSource::SOAP::Checkout->new( id => $ENV{CYBS_ID}, key => $ENV{CYBS_KEY});
+my $cy2 = CyberSource::SOAP::Checkout::Response->new;
 
-meta_ok($cy, 'C::M::CyberSource is a Moose object');
+meta_ok($cy, 'C::S::Checkout is a Moose object');
 
 my @methods = qw/agent response test_server prod_server cybs_version wsse_prefix wsse_nsuri refcode password_text process/;
 
@@ -21,8 +21,8 @@ my @methods2 = qw/handler respond payment_info error successful FAULT DEFAULT EM
 can_ok($cy, @methods);
 can_ok($cy2, @methods2);
 
-like( $cy2->handler->{101}->(), qr/omitted necessary/, 'Spot check: C::M::C::Response->handler handler coderefs return correct stuff');
-like( $cy2->handler->{100}->(), qr/Success/, 'Spot check: C::M::C::Response->handler coderefs return correct stuff');
+like( $cy2->handler->{101}->(), qr/omitted necessary/, 'Spot check: C::S::C::Response->handler handler coderefs return correct stuff');
+like( $cy2->handler->{100}->(), qr/Success/, 'Spot check: C::S::C::Response->handler coderefs return correct stuff');
 
 my $data = {
     'expiry.month'=> '09',
@@ -43,13 +43,13 @@ my $data = {
     zip           => '90064',
 };
 
-ok($cy->process($data), 'C::M::CyberSource can process my correct data');
+ok($cy->process($data), 'C::S::Checkout can process my correct data');
 is($cy->response->success->{message}, 'Successful transaction', 'Success message is correct');
 ok(!$cy->response->{error}, 'No error exists');
 
 ##################### INCORRECT DATA
 
-my $cy3 = Catalyst::Model::CyberSource->new;
+my $cy3 = CyberSource::SOAP::Checkout->new;
 my $data2 = {
     address1      => '48 Blueberry Hill #2',
     amount        => '500',
@@ -69,7 +69,7 @@ my $data2 = {
     ip            => '192.168.100.2'
 };
 
-ok($cy3->process($data2), 'C::M::CyberSource can process my incorrect data (state missing)');
+ok($cy3->process($data2), 'C::S::Checkout can process my incorrect data (state missing)');
 like($cy3->response->error->{message}, qr/Your purchase failed for an unknown reason/, 'Error message is correct');
 ok(!$cy3->response->{success}, 'No success message exists');
 

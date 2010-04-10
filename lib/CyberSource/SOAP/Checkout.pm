@@ -1,9 +1,12 @@
-package Catalyst::Model::CyberSource;
+package CyberSource::SOAP::Checkout;
 
 use Moose;
 use SOAP::Lite;
 use Time::HiRes qw/gettimeofday/;
 use namespace::autoclean;
+
+use 5.008_001;
+our $VERSION = '0.01';
 
 extends 'Catalyst::Model';
 
@@ -17,9 +20,15 @@ has 'key' => (
     isa => 'Str',
 );
 
+has 'column_map' => (
+    is => 'ro',
+    isa => 'HashRef',
+    required => 1,
+);
+
 has 'response' => (
     is      => 'rw',
-    isa     => 'Catalyst::Model::CyberSource::Response',
+    isa     => 'CyberSource::SOAP::Checkout::Response',
     lazy => 1,
     builder => '_get_response',
 );
@@ -87,7 +96,7 @@ sub _get_agent {
 
 sub _get_response {
     my $self = shift;
-    return Catalyst::Model::CyberSource::Response->new;
+    return CyberSource::SOAP::Checkout::Response->new;
 }
 
 
@@ -186,4 +195,97 @@ sub process {
     return $self->response->respond($reply,$args);
 }
 
+__PACKAGE__->meta->make_immutable;
+
 1;
+
+__END__
+
+=encoding utf-8
+
+=for stopwords
+
+=head1 NAME
+
+CyberSource::SOAP::Checkout - A Modern Perl interface to CyberSource's SOAP API.
+
+=head1 SYNOPSIS
+
+This is for single transactions of variable quantity.
+
+You can use this as a standalone module by sending it a payment information hashref. You will receive a C::S::Checkout::Response object containing either a success message or an error message. If successful, you will also receive a payment_info hashref, suitable for storing in your database.
+
+You must map the keys in the hashref you send (which also sets the keys for the payment_info hashref you receive back). CyberSource uses camelCased and otherwise idiosyncratic identifiers here, so this mapping cannot be avoided.
+
+You can use this in a Catalyst application by using Catalyst::Model::Adaptor and setting your configuration file somewhat like this:
+
+    <Model::Checkout>
+        class   CyberSource::SOAP::Checkout
+        <args>
+            id  your_cybersource_id
+            key your cybersource_key
+            <payment_columns>
+                address1
+                amount
+                card_type
+                city
+                country
+                decision
+                email
+                expmonth
+                expyear
+                firstname
+                ip
+                lastname
+                postcode
+                reasoncode
+                refcode
+                state    
+            </payment_columns>
+        </args>
+    </Model::Checkout>
+
+So that in your payment processing controller you would get validated data back from a shopping cart or other form and do something like this:
+    
+    # If your checkout form is valid, call C::S::Checkout's process method:
+
+    my $response = $c->model('Checkout')->process( $c->req->params );
+
+
+    # Check the response object, branch accordingly.
+
+    if ( $response->success ) {
+
+        # Store a payment in your database
+
+        my $payment = $c->model('Payment')->create($response->payment_info);
+
+        $c->flash( status_msg => $response->success->{message} );
+        $c->res->redirect($c->uri_for('/Yay! Money!')); # Don't do this.
+    
+    }
+    
+    else {
+        $c->stash( error_msg => $response->error->{message} );
+        return;
+    }
+
+
+=head1 WHY?
+
+Folks often have a need for simple and quick, but "enterprise-level" payment-gateway integration. CyberSource's Simple Order API still requires that you compile a binary, and it won't compile on 64-bit processors (no, not OSes, but processors, i.e., what I imagine to be most development workstations by now). So you have to use the SOAP API, which is unwieldy, not least because it uses XML. May no one struggle with this again.  :)
+
+=head1 AUTHOR
+
+Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<Catalyst::Model::Adaptor> L<Business::OnlinePayment::CyberSource>
+
+=cut

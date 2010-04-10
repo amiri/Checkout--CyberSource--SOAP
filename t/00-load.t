@@ -6,8 +6,8 @@ use warnings;
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok( 'Catalyst::Model::CyberSource' ) || print "Bail out!
+    use_ok( 'CyberSource::SOAP::Checkout' ) || print "Bail out!
 ";
 }
 
-diag( "Testing Catalyst::Model::CyberSource $Catalyst::Model::CyberSource::VERSION, Perl $], $^X" );
+diag( "Testing CyberSource::SOAP::Checkout $CyberSource::SOAP::Checkout::VERSION, Perl $], $^X" );

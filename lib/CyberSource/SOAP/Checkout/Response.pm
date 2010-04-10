@@ -1,4 +1,4 @@
-package Catalyst::Model::CyberSource::Response;
+package CyberSource::SOAP::Checkout::Response;
 
 use Moose;
 use Business::CreditCard;
@@ -381,28 +381,3 @@ sub EMPTY {
 __PACKAGE__->meta->make_immutable;
 
 1;
-
-__END__
-
-<Model::CyberSource>
-    id  your_cybersource_id
-    key your cybersource_key
-    <payment_columns>
-        address1
-        amount
-        card_type
-        city
-        country
-        decision
-        email
-        expmonth
-        expyear
-        firstname
-        ip
-        lastname
-        postcode
-        reasoncode
-        refcode
-        state    
-    </payment_columns>
-</Model::CyberSource>

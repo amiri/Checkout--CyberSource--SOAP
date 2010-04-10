@@ -48,7 +48,7 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Catalyst/Model/CyberSource.pm');
+  module_boilerplate_ok('lib/CyberSource/SOAP/Checkout.pm');
 
 
 }

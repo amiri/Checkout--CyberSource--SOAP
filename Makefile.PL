@@ -1,19 +1,15 @@
-use strict;
-use warnings;
-use ExtUtils::MakeMaker;
+use inc::Module::Install;
 
-WriteMakefile(
-    NAME                => 'Catalyst::Model::CyberSource',
-    AUTHOR              => q{Amiri Barksdale <amiri@metalabel.com>},
-    VERSION_FROM        => 'lib/Catalyst/Model/CyberSource.pm',
-    ABSTRACT_FROM       => 'lib/Catalyst/Model/CyberSource.pm',
-    ($ExtUtils::MakeMaker::VERSION >= 6.3002
-      ? ('LICENSE'=> 'perl')
-      : ()),
-    PL_FILES            => {},
-    PREREQ_PM => {
-        'Test::More' => 0,
-    },
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Catalyst-Model-CyberSource-*' },
-);
+if ($Module::Install::AUTHOR) {
+    system('pod2text lib/CyberSource/SOAP/Checkout.pm > README');
+}
+
+name 'CyberSource-SOAP-Checkout';
+all_from 'lib/CyberSource/SOAP/Checkout.pm';
+test_requires 'Test::More';
+auto_include_deps;
+auto_install;
+tests 't/*.t';
+repository 'http://github.com/amiri/CyberSource--SOAP--Checkout';
+
+WriteAll;
