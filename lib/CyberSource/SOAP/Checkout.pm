@@ -247,14 +247,14 @@ So that in your payment processing controller you would get validated data back 
         my $payment = $c->model('Payment')->create($response->payment_info);
 
         $c->flash( status_msg => $response->success->{message} );
-        $c->res->redirect($c->uri_for('/Yay! Money!')); # Don't do this.
-    
+        $c->res->redirect($c->uri_for('I_got_your_money'));
     }
     
     else {
         $c->stash( error_msg => $response->error->{message} );
         return;
     }
+
 
 
 =head1 WHY?

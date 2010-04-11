@@ -18,6 +18,7 @@
 
 	<li><a href="#name">NAME</a></li>
 	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#why">WHY?</a></li>
 	<li><a href="#author">AUTHOR</a></li>
 	<li><a href="#contributors">CONTRIBUTORS</a></li>
 	<li><a href="#license">LICENSE</a></li>
@@ -83,17 +84,18 @@
         my $payment = $c-&gt;model('Payment')-&gt;create($response-&gt;payment_info);</pre>
 <pre>
         $c-&gt;flash( status_msg =&gt; $response-&gt;success-&gt;{message} );
-        $c-&gt;res-&gt;redirect($c-&gt;uri_for('/Yay! Money!')); # Don't do this.
-    
+        $c-&gt;res-&gt;redirect($c-&gt;uri_for('I_got_your_money'));
     }
     
     else {
         $c-&gt;stash( error_msg =&gt; $response-&gt;error-&gt;{message} );
         return;
     }</pre>
-<pre>
-
-=head1 WHY?</pre>
+<p></p>
+<p>
+</p>
+<hr />
+<h1><a name="why">WHY?</a></h1>
 <p>Folks often have a need for simple and quick, but &quot;enterprise-level&quot; payment-gateway integration. CyberSource's Simple Order API still requires that you compile a binary, and it won't compile on 64-bit processors (no, not OSes, but processors, i.e., what I imagine to be most development workstations by now). So you have to use the SOAP API, which is unwieldy, not least because it uses XML. May no one struggle with this again.  :)</p>
 <p>
 </p>
