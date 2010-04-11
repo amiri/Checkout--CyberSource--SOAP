@@ -25,24 +25,24 @@ SYNOPSIS
             <args>
                 id  your_cybersource_id
                 key your cybersource_key
-                <payment_columns>
-                    address1
-                    amount
-                    card_type
-                    city
-                    country
-                    decision
-                    email
-                    expmonth
-                    expyear
-                    firstname
-                    ip
-                    lastname
-                    postcode
-                    reasoncode
-                    refcode
-                    state    
-                </payment_columns>
+                #production  1
+                <column_map>
+                    firstName               firstname
+                    lastName                lastname
+                    street1             address1
+                    city                    city
+                    state           state
+                    postalCode          zip
+                    country         country
+                    email           email
+                    ipAddress               ip
+                    unitPrice               amount
+                    quantity                quantity
+                    currency                currency
+                    accountNumber   cardnumber
+                    expirationMonth expiry.month
+                    expirationYear  expiry.year
+                </column_map>
             </args>
         </Model::Checkout>
 
@@ -84,10 +84,20 @@ WHY?
 AUTHOR
     Amiri Barksdale <amiri@metalabel.com>
 
+CONTRIBUTORS
+    Tomas Doran (t0m) E<bobtfish@bobtfish.net>
+
 LICENSE
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
 
 SEE ALSO
     Catalyst::Model::Adaptor Business::OnlinePayment::CyberSource
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 270:
+        Unknown E content in E<bobtfish@bobtfish.net>
 

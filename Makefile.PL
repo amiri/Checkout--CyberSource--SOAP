@@ -2,6 +2,7 @@ use inc::Module::Install;
 
 if ($Module::Install::AUTHOR) {
     system('pod2text lib/CyberSource/SOAP/Checkout.pm > README');
+    system('pod2html lib/CyberSource/SOAP/Checkout.pm > README.html');
 }
 
 name 'CyberSource-SOAP-Checkout';
