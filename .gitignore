@@ -3,3 +3,5 @@
 man
 src
 blib
+*.tmp
+*.old
