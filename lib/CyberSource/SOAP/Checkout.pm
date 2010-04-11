@@ -20,6 +20,11 @@ has 'key' => (
     isa => 'Str',
 );
 
+has 'production' => (
+    is => 'ro',
+    isa => 'Bool',
+);
+
 has 'column_map' => (
     is => 'ro',
     isa => 'HashRef',
@@ -90,7 +95,7 @@ sub _get_agent {
     return SOAP::Lite->uri( 'urn:schemas-cybersource-com:transaction-data-'
             . $self->cybs_version )
         ->proxy( 'https://'
-            . $self->test_server
+            . ( $self->production ? $self->prod_server : $self->test_server  )
             . '/commerce/1.x/transactionProcessor' )->autotype(0);
 }
 
@@ -99,19 +104,19 @@ sub _get_response {
     return CyberSource::SOAP::Checkout::Response->new;
 }
 
-
 sub addField {
-    my ( $parentRef, $name, $val ) = @_;
+    my ( $self, $parentRef, $name, $val ) = @_;
     push( @$parentRef, SOAP::Data->name( $name => $val ) );
 }
 
 sub addComplexType {
-    my ( $parentRef, $name, $complexTypeRef ) = @_;
-    addField( $parentRef, $name, \SOAP::Data->value(@$complexTypeRef) );
+    my ( $self, $parentRef, $name, $complexTypeRef ) = @_;
+    $self->addField( $parentRef, $name,
+        \SOAP::Data->value(@$complexTypeRef) );
 }
 
 sub addItem {
-    my ( $parentRef, $index, $itemRef ) = @_;
+    my ( $self, $parentRef, $index, $itemRef ) = @_;
     my %attr;
     push( @$parentRef,
         SOAP::Data->name( item => \SOAP::Data->value(@$itemRef) )
@@ -119,7 +124,7 @@ sub addItem {
 }
 
 sub addService {
-    my ( $parentRef, $name, $serviceRef, $run ) = @_;
+    my ( $self, $parentRef, $name, $serviceRef, $run ) = @_;
     push( @$parentRef,
         SOAP::Data->name( $name => \SOAP::Data->value(@$serviceRef) )
             ->attr( { run => $run } ) );
@@ -148,51 +153,36 @@ sub formSOAPHeader {
 
 sub process {
     my ( $self, $args ) = @_;
-    $args->{refcode} = $self->refcode;
-    #print STDERR Dumper $args;
 
     my $header = $self->formSOAPHeader();
     my @request;
 
-    
-
-    addField( \@request, 'merchantID',            $self->id );
-    addField( \@request, 'merchantReferenceCode', $args->{refcode} );
-    addField( \@request, 'clientLibrary',         'Perl' );
-    addField( \@request, 'clientLibraryVersion',  "$]" );
-    addField( \@request, 'clientEnvironment',     "$^O" );
+    $self->addField( \@request, 'merchantID',            $self->id );
+    $self->addField( \@request, 'merchantReferenceCode', $self->refcode );
+    $self->addField( \@request, 'clientLibrary',         'Perl' );
+    $self->addField( \@request, 'clientLibraryVersion',  "$]" );
+    $self->addField( \@request, 'clientEnvironment',     "$^O" );
 
     my @billTo;
-    addField( \@billTo, 'firstName',  $args->{firstname} );
-    addField( \@billTo, 'lastName',   $args->{lastname} );
-    addField( \@billTo, 'street1',    $args->{address1} );
-    addField( \@billTo, 'city',       $args->{city} );
-    addField( \@billTo, 'state',      $args->{state} );
-    addField( \@billTo, 'postalCode', $args->{zip} );
-    addField( \@billTo, 'country',    $args->{country} );
-    addField( \@billTo, 'email',      $args->{email} );
-    addField( \@billTo, 'ipAddress',  $args->{ip} );
-    addComplexType( \@request, 'billTo', \@billTo );
+    $self->addField( \@billTo, $_, $args->{$self->column_map->{$_}}) for qw/firstName lastName street1 city state postalCode country email ipAddress/;
+    $self->addComplexType( \@request, 'billTo', \@billTo );
 
     my @item;
-    addField( \@item, 'unitPrice', $args->{amount} );
-    addField( \@item, 'quantity',  $args->{quantity} );
-    addItem( \@request, '0', \@item );
+    $self->addField( \@item, $_, $args->{$self->column_map->{$_}}) for qw/unitPrice quantity/;
+    $self->addItem( \@request, '0', \@item );
 
     my @purchaseTotals;
-    addField( \@purchaseTotals, 'currency', $args->{currency} );
-    addComplexType( \@request, 'purchaseTotals', \@purchaseTotals );
+    $self->addField( \@purchaseTotals, 'currency', $args->{$self->column_map->{currency}} );
+    $self->addComplexType( \@request, 'purchaseTotals', \@purchaseTotals );
 
     my @card;
-    addField( \@card, 'accountNumber',   $args->{cardnumber} );
-    addField( \@card, 'expirationMonth', $args->{'expiry.month'} );
-    addField( \@card, 'expirationYear',  $args->{'expiry.year'} );
-    addComplexType( \@request, 'card', \@card );
+    $self->addField( \@card, $_, $args->{$self->column_map->{$_}}) for qw/accountNumber expirationMonth expirationYear/;
+    $self->addComplexType( \@request, 'card', \@card );
 
     my @ccAuthService;
-    addService( \@request, 'ccAuthService', \@ccAuthService, 'true' );
+    $self->addService( \@request, 'ccAuthService', \@ccAuthService, 'true' );
     my $reply = $self->agent->call( 'requestMessage' => @request, $header );
-    return $self->response->respond($reply,$args);
+    return $self->response->respond( $reply, $args );
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -200,10 +190,6 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 __END__
-
-=encoding utf-8
-
-=for stopwords
 
 =head1 NAME
 
@@ -224,24 +210,24 @@ You can use this in a Catalyst application by using Catalyst::Model::Adaptor and
         <args>
             id  your_cybersource_id
             key your cybersource_key
-            <payment_columns>
-                address1
-                amount
-                card_type
-                city
-                country
-                decision
-                email
-                expmonth
-                expyear
-                firstname
-                ip
-                lastname
-                postcode
-                reasoncode
-                refcode
-                state    
-            </payment_columns>
+            #production  1
+            <column_map>
+                firstName		firstname
+                lastName		lastname
+                street1		    address1
+                city    		city
+                state	    	state
+                postalCode	    zip
+                country         country
+                email           email
+                ipAddress		ip
+                unitPrice		amount
+                quantity		quantity
+                currency		currency
+                accountNumber	cardnumber
+                expirationMonth	expiry.month
+                expirationYear	expiry.year
+            </column_map>
         </args>
     </Model::Checkout>
 
@@ -278,6 +264,10 @@ Folks often have a need for simple and quick, but "enterprise-level" payment-gat
 =head1 AUTHOR
 
 Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
+
+=head1 CONTRIBUTORS
+
+Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
 
 =head1 LICENSE
 
