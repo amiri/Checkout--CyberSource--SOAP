@@ -3,6 +3,7 @@ package Checkout::CyberSource::SOAP::Response;
 use Moose;
 use Business::CreditCard;
 use namespace::autoclean;
+no warnings qw/uninitialized/;
 
 has 'error' => (
     is      => 'ro',
@@ -69,7 +70,7 @@ has 'handler' => (
 );
 
 sub respond {
-    my ( $self, $reply, $args ) = @_;
+    my ( $self, $reply, $args, $column_map ) = @_;
 
     unless ( $reply->fault ) {
         if ( $reply->match('//Body/replyMessage') ) {    ### IF REPLY
@@ -77,31 +78,32 @@ sub respond {
             if ( exists $self->handler->{ $reply->valueof('reasonCode') } ) {
 
                 if ( $reply->valueof('reasonCode') == 100 ) {
-                    my @payment_cols = qw/
-                        address1 amount card_type
-                        city country decision email
-                        expmonth expyear firstname
-                        ip lastname postcode
-                        reasoncode refcode state
-                        /;
 
-                    @{ $self->payment_info }{@payment_cols} = (
-                        $args->{address1},
-                        $args->{amount},
-                        Business::CreditCard::cardtype( $args->{cardnumber} ),
-                        $args->{city},
-                        $args->{country},
+                    # construct payment_info hashref
+                    my $card_number = $args->{ $column_map->{accountNumber} };
+                    delete $args->{ $column_map->{accountNumber} };
+                    @{$args}{qw/card_type decision fault reasoncode/} = undef;
+
+                    @{ $self->payment_info }{ sort keys %{$args} } = (
+                        $args->{ $column_map->{street1} },
+                        $args->{ $column_map->{unitPrice} },
+                        Business::CreditCard::cardtype($card_number),
+                        $args->{ $column_map->{city} },
+                        $args->{ $column_map->{country} },
+                        $args->{ $column_map->{currency} },
                         $reply->valueof('decision'),
-                        $args->{email},
-                        $args->{'expiry.month'},
-                        $args->{'expiry.year'},
-                        $args->{firstname},
-                        $args->{ip},
-                        $args->{lastname},
-                        $args->{zip},
+                        $args->{ $column_map->{email} },
+                        $args->{ $column_map->{expirationMonth} },
+                        $args->{ $column_map->{expirationYear} },
+                        undef,
+                        $args->{ $column_map->{firstName} },
+                        $args->{ $column_map->{ipAddress} },
+                        $args->{ $column_map->{lastName} },
+                        $args->{ $column_map->{quantity} },
                         $reply->valueof('reasonCode'),
                         $args->{refcode},
-                        $args->{state}
+                        $args->{ $column_map->{state} },
+                        $args->{ $column_map->{zip} },
                     );
                 }
                 $self->success->{message}
@@ -406,3 +408,27 @@ function returning success or failure--there are many ways to fail, thus most
 of the entries in the dispatch table.
 
 =back
+
+=head1 AUTHOR
+
+Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
+
+=head1 CONTRIBUTORS
+
+Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2010 the Checkout::CyberSource::SOAP::Response
+L</AUTHOR> and L</CONTRIBUTORS> as listed above.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<Catalyst::Model::Adaptor> L<Business::OnlinePayment::CyberSource>
+
+=cut
