@@ -236,6 +236,21 @@ a true value in your configuration file or in your object construction, e.g.,
 
 This is for single transactions of variable quantity.
 
+B<column_map> is important. You B<must> map the keys in the hashref you send
+(which also sets the keys for the payment_info hashref you receive back).
+CyberSource uses camelCased and otherwise idiosyncratic identifiers here, so
+this mapping cannot be avoided.
+
+I mentioned above that this module does not store credit card numbers; more
+specifically, the payment_info hash that the Response object returns deletes
+the credit card number, replaces it with card_type, and adds 4 additional keys:
+
+    decision fault reasoncode refcode
+
+These are for more a detailed record of why a particular transaction was denied.
+
+=head2 Standalone Usage
+
 You can use this as a standalone module by sending it a payment information
 hashref. You will receive a Checkout::CyberSource::SOAP::Response object
 containing either a success message or an error message. If successful, you
@@ -248,18 +263,23 @@ database.
         column_map => $column_map
     );
 
-column_map is important. You B<must> map the keys in the hashref you send
-(which also sets the keys for the payment_info hashref you receive back).
-CyberSource uses camelCased and otherwise idiosyncratic identifiers here, so
-this mapping cannot be avoided.
+    ...
 
-I mentioned above that this module does not store credit card numbers; more
-specifically, the payment_info hash that the Response object returns deletes
-the credit card number, replaces it with card_type, and adds 4 additional keys:
+    my $response = $checkout->checkout($args);
 
-    decision fault reasoncode refcode
+    ...
 
-These are for more a detailed record of why a particular transaction was denied.
+    if ($response->success) {
+        my $payment_info = $response->payment_info;
+        # Store payment_info in your database, etc.
+    }
+    else {
+        # Display error message
+        print $response->error->{message};
+    }
+
+
+=head2 Catalyst
 
 You can use this in a Catalyst application by using L<Catalyst::Model::Adaptor>
 and setting your configuration file somewhat like this:
@@ -317,8 +337,6 @@ form and do something like this:
         $c->stash( error_msg => $response->error->{message} );
         return;
     }
-
-
 
 
 =head1 METHODS
