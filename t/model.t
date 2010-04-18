@@ -74,7 +74,6 @@ my $data = {
     city           => 'Los Angeles',
     country        => 'USA',
     currency       => 'USD',
-    document       => '12',
     email          => 'amiri@metalabel.com',
     firstname      => 'Amiri',
     ip             => '192.168.100.2',
@@ -104,7 +103,6 @@ my $data2 = {
     cardnumber     => '4111111111111111',
     city           => 'Los Angeles',
     currency       => 'USD',
-    document       => '12',
     'expiry.month' => '09',
     'expiry.year'  => '2010',
     firstname      => 'Amiri',
@@ -113,7 +111,6 @@ my $data2 = {
     country        => 'USA',
     email          => 'amiri@metalabel.com',
     quantity       => '1',
-
     #state           => 'CA',
     ip => '192.168.100.2'
 };
@@ -127,7 +124,7 @@ like(
 );
 ok( !$cy3->response->{success}, 'No success message exists' );
 
-is( $cy->response->payment_info->{expmonth},
+is( $cy->response->payment_info->{'expiry.month'},
     '09', 'Correct data is in the returned payment_info hash' );
 
 done_testing();

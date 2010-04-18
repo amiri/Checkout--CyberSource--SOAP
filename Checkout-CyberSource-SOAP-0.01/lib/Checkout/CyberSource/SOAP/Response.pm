@@ -1,4 +1,7 @@
 package Checkout::CyberSource::SOAP::Response;
+BEGIN {
+  $Checkout::CyberSource::SOAP::Response::VERSION = '0.01';
+}
 
 use Moose;
 use Business::CreditCard;
@@ -389,6 +392,10 @@ __END__
 =head1 NAME
 
 Checkout::CyberSource::SOAP::Response
+
+=head1 VERSION
+
+version 0.01
 
 =head1 SYNOPSIS
 

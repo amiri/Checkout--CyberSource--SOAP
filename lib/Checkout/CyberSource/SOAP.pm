@@ -20,20 +20,20 @@ has 'key' => (
 );
 
 has 'production' => (
-    is => 'ro',
+    is  => 'ro',
     isa => 'Bool',
 );
 
 has 'column_map' => (
-    is => 'ro',
-    isa => 'HashRef',
+    is       => 'ro',
+    isa      => 'HashRef',
     required => 1,
 );
 
 has 'response' => (
     is      => 'rw',
     isa     => 'Checkout::CyberSource::SOAP::Response',
-    lazy => 1,
+    lazy    => 1,
     builder => '_get_response',
 );
 
@@ -94,7 +94,7 @@ sub _get_agent {
     return SOAP::Lite->uri( 'urn:schemas-cybersource-com:transaction-data-'
             . $self->cybs_version )
         ->proxy( 'https://'
-            . ( $self->production ? $self->prod_server : $self->test_server  )
+            . ( $self->production ? $self->prod_server : $self->test_server )
             . '/commerce/1.x/transactionProcessor' )->autotype(0);
 }
 
@@ -152,36 +152,41 @@ sub formSOAPHeader {
 
 sub checkout {
     my ( $self, $args ) = @_;
-
+    my $refcode = $self->refcode;
     my $header = $self->formSOAPHeader();
     my @request;
 
     $self->addField( \@request, 'merchantID',            $self->id );
-    $self->addField( \@request, 'merchantReferenceCode', $self->refcode );
+    $self->addField( \@request, 'merchantReferenceCode', $refcode );
     $self->addField( \@request, 'clientLibrary',         'Perl' );
     $self->addField( \@request, 'clientLibraryVersion',  "$]" );
     $self->addField( \@request, 'clientEnvironment',     "$^O" );
 
     my @billTo;
-    $self->addField( \@billTo, $_, $args->{$self->column_map->{$_}}) for qw/firstName lastName street1 city state postalCode country email ipAddress/;
+    $self->addField( \@billTo, $_, $args->{ $self->column_map->{$_} } )
+        for
+        qw/firstName lastName street1 city state postalCode country email ipAddress/;
     $self->addComplexType( \@request, 'billTo', \@billTo );
 
     my @item;
-    $self->addField( \@item, $_, $args->{$self->column_map->{$_}}) for qw/unitPrice quantity/;
+    $self->addField( \@item, $_, $args->{ $self->column_map->{$_} } )
+        for qw/unitPrice quantity/;
     $self->addItem( \@request, '0', \@item );
 
     my @purchaseTotals;
-    $self->addField( \@purchaseTotals, 'currency', $args->{$self->column_map->{currency}} );
+    $self->addField( \@purchaseTotals, 'currency',
+        $args->{ $self->column_map->{currency} } );
     $self->addComplexType( \@request, 'purchaseTotals', \@purchaseTotals );
 
     my @card;
-    $self->addField( \@card, $_, $args->{$self->column_map->{$_}}) for qw/accountNumber expirationMonth expirationYear/;
+    $self->addField( \@card, $_, $args->{ $self->column_map->{$_} } )
+        for qw/accountNumber expirationMonth expirationYear/;
     $self->addComplexType( \@request, 'card', \@card );
 
     my @ccAuthService;
     $self->addService( \@request, 'ccAuthService', \@ccAuthService, 'true' );
     my $reply = $self->agent->call( 'requestMessage' => @request, $header );
-    return $self->response->respond( $reply, $args );
+    return $self->response->respond( $reply, { refcode => $refcode, %{$args} }, $self->column_map );
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -192,15 +197,40 @@ __END__
 
 =head1 NAME
 
-Checkout::CyberSource::SOAP - A Modern Perl interface to CyberSource's
+B<Checkout::CyberSource::SOAP>
+A Modern Perl interface to CyberSource's
 SOAP API.
+
+=head1 WHY?
+
+Folks often have a need for simple and quick, but "enterprise-level" payment-
+gateway integration. CyberSource's Simple Order API still requires that you
+compile a binary, and it won't compile on 64-bit processors (no, not OSes, but
+processors, i.e., what I imagine to be most development workstations by now).
+So you have to use the SOAP API, which is unwieldy, not least because it uses
+XML. May no one struggle with this again.  :)
 
 =head1 NOTICE
 
-Please note that you must use your own transaction id and key, even for
+=head2 Credit Card Numbers
+
+To save you some legal hassles and vulnerability, this module does not store
+credit card numbers. If you'd like the option of returning a credit card
+number from the Response object, please send a patch.
+
+=head2 ID and Key
+
+Please note that you B<must> use your own CyberSource id and key, even for
 testing purposes on CyberSource's test server. This module defaults to
 using the test server, so when you go into production, set production to
-a true value in your configuration file or in your construction.
+a true value in your configuration file or in your object construction, e.g.,
+    
+    my $checkout = Checkout::CyberSource::SOAP->new(
+        id         => $id,
+        key        => $key,
+        production => 1,
+        column_map => $column_map
+    );
 
 =head1 SYNOPSIS
 
@@ -209,13 +239,27 @@ This is for single transactions of variable quantity.
 You can use this as a standalone module by sending it a payment information
 hashref. You will receive a Checkout::CyberSource::SOAP::Response object
 containing either a success message or an error message. If successful, you
-will alsoreceive a payment_info hashref, suitable for storing in your
+will also receive a payment_info hashref, suitable for storing in your
 database.
 
-You B<must> map the keys in the hashref you send (which also sets the keys
-for the payment_info hashref you receive back). CyberSource uses camelCased
-and otherwise idiosyncratic identifiers here, so this mapping cannot be
-avoided.
+    my $checkout = Checkout::CyberSource::SOAP->new(
+        id         => $id,
+        key        => $key,
+        column_map => $column_map
+    );
+
+column_map is important. You B<must> map the keys in the hashref you send
+(which also sets the keys for the payment_info hashref you receive back).
+CyberSource uses camelCased and otherwise idiosyncratic identifiers here, so
+this mapping cannot be avoided.
+
+I mentioned above that this module does not store credit card numbers; more
+specifically, the payment_info hash that the Response object returns deletes
+the credit card number, replaces it with card_type, and adds 4 additional keys:
+
+    decision fault reasoncode refcode
+
+These are for more a detailed record of why a particular transaction was denied.
 
 You can use this in a Catalyst application by using L<Catalyst::Model::Adaptor>
 and setting your configuration file somewhat like this:
@@ -246,8 +290,10 @@ and setting your configuration file somewhat like this:
         </args>
     </Model::Checkout>
 
-So that in your payment processing controller you would get validated data
-back from a shopping cart or other form and do something like this:
+production is commented out. You will want to set production to true when you
+are ready to process real transactions. So that in your payment processing
+controller you would get validated data back from a shopping cart or other
+form and do something like this:
     
     # If your checkout form is valid, call Checkout::CyberSource::SOAP's
     # checkout method:
@@ -274,14 +320,6 @@ back from a shopping cart or other form and do something like this:
 
 
 
-=head1 WHY?
-
-Folks often have a need for simple and quick, but "enterprise-level" payment-
-gateway integration. CyberSource's Simple Order API still requires that you
-compile a binary, and it won't compile on 64-bit processors (no, not OSes, but
-processors, i.e., what I imagine to be most development workstations by now).
-So you have to use the SOAP API, which is unwieldy, not least because it uses
-XML. May no one struggle with this again.  :)
 
 =head1 METHODS
 
@@ -320,6 +358,11 @@ Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
 =head1 CONTRIBUTORS
 
 Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2010 the Checkout::CyberSource::SOAP L</AUTHOR> and
+L</CONTRIBUTORS> as listed above.
 
 =head1 LICENSE
 
