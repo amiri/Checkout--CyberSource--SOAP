@@ -6,20 +6,18 @@ use Test::More;
 use Test::Moose;
 use Data::Dumper;
 
-BEGIN { use_ok 'CyberSource::SOAP::Checkout' }
-BEGIN { use_ok 'CyberSource::SOAP::Checkout::Response' }
+BEGIN { use_ok 'Checkout::CyberSource::SOAP' }
+BEGIN { use_ok 'Checkout::CyberSource::SOAP::Response' }
 
 my $id  = $ENV{CYBS_ID};
 my $key = $ENV{CYBS_KEY};
 
 plan skip_all => '
-############################################################################
-#                                                                          #    
-#                                                                          #    
-#    You MUST set $ENV{CYBS_ID} and $ENV{CYBS_KEY} to test this module!    #                    
-#                                                                          #            
-#                                                                          #
-############################################################################'
+#################################################################
+#                                                               #            
+#  You MUST set $ENV{CYBS_ID} and $ENV{CYBS_KEY} to test this!  #
+#                                                               #            
+#################################################################'
     unless ( $id && $key );
 
 my $column_map = {
@@ -40,17 +38,17 @@ my $column_map = {
     expirationYear  => "expiry.year",
 };
 
-my $cy = CyberSource::SOAP::Checkout->new(
+my $cy = Checkout::CyberSource::SOAP->new(
     id         => $id,
     key        => $key,
     column_map => $column_map
 );
-my $cy2 = CyberSource::SOAP::Checkout::Response->new;
+my $cy2 = Checkout::CyberSource::SOAP::Response->new;
 
-meta_ok( $cy, 'C::S::Checkout is a Moose object' );
+meta_ok( $cy, 'C::C::SOAP is a Moose object' );
 
 my @methods
-    = qw/agent response test_server prod_server cybs_version wsse_prefix wsse_nsuri refcode password_text process/;
+    = qw/agent response test_server prod_server cybs_version wsse_prefix wsse_nsuri refcode password_text checkout/;
 
 my @methods2
     = qw/handler respond payment_info error successful FAULT DEFAULT EMPTY/;
@@ -61,11 +59,11 @@ can_ok( $cy2, @methods2 );
 like(
     $cy2->handler->{101}->(),
     qr/omitted necessary/,
-    'Spot check: C::S::C::Response->handler handler coderefs return correct stuff'
+    'Spot check: C::C::S::Response->handler handler coderefs return correct stuff'
 );
 like( $cy2->handler->{100}->(),
     qr/Success/,
-    'Spot check: C::S::C::Response->handler coderefs return correct stuff' );
+    'Spot check: C::C::S::Response->handler coderefs return correct stuff' );
 
 my $data = {
     'expiry.month' => '09',
@@ -86,7 +84,7 @@ my $data = {
     zip            => '90064',
 };
 
-ok( $cy->process($data), 'C::S::Checkout can process my correct data' );
+ok( $cy->checkout($data), 'C::C::SOAP can process my correct data' );
 is( $cy->response->success->{message},
     'Successful transaction',
     'Success message is correct'
@@ -95,7 +93,7 @@ ok( !$cy->response->{error}, 'No error exists' );
 
 ##################### INCORRECT DATA
 
-my $cy3 = CyberSource::SOAP::Checkout->new(
+my $cy3 = Checkout::CyberSource::SOAP->new(
     id         => $ENV{CYBS_ID},
     key        => $ENV{CYBS_KEY},
     column_map => $column_map
@@ -120,8 +118,8 @@ my $data2 = {
     ip => '192.168.100.2'
 };
 
-ok( $cy3->process($data2),
-    'C::S::Checkout can process my incorrect data (state missing)' );
+ok( $cy3->checkout($data2),
+    'C::C::SOAP can process my incorrect data (state missing)' );
 like(
     $cy3->response->error->{message},
     qr/Your purchase failed for an unknown reason/,

@@ -1,4 +1,4 @@
-package CyberSource::SOAP::Checkout::Response;
+package Checkout::CyberSource::SOAP::Response;
 
 use Moose;
 use Business::CreditCard;
@@ -381,3 +381,28 @@ sub EMPTY {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=head1 NAME
+
+Checkout::CyberSource::SOAP::Response
+
+=head1 SYNOPSIS
+
+    my $response = $c->model('Checkout')->checkout( $c->req->params );
+
+    When you call Checkout::CyberSource::SOAP::process, your response object
+    is a Checkout::CyberSource::SOAP::Response.
+
+=head1 METHODS
+
+=over
+
+=item respond
+
+This basically just maps response codes from Checkout::CyberSource::SOAP to a
+function returning success or failure--there are many ways to fail, thus most
+of the entries in the dispatch table.
+
+=back

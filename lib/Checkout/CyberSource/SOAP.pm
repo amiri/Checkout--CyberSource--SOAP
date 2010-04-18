@@ -1,4 +1,4 @@
-package CyberSource::SOAP::Checkout;
+package Checkout::CyberSource::SOAP;
 
 use Moose;
 use SOAP::Lite;
@@ -6,7 +6,6 @@ use Time::HiRes qw/gettimeofday/;
 use namespace::autoclean;
 
 use 5.008_001;
-our $VERSION = '0.01';
 
 extends 'Catalyst::Model';
 
@@ -33,7 +32,7 @@ has 'column_map' => (
 
 has 'response' => (
     is      => 'rw',
-    isa     => 'CyberSource::SOAP::Checkout::Response',
+    isa     => 'Checkout::CyberSource::SOAP::Response',
     lazy => 1,
     builder => '_get_response',
 );
@@ -101,7 +100,7 @@ sub _get_agent {
 
 sub _get_response {
     my $self = shift;
-    return CyberSource::SOAP::Checkout::Response->new;
+    return Checkout::CyberSource::SOAP::Response->new;
 }
 
 sub addField {
@@ -151,7 +150,7 @@ sub formSOAPHeader {
     return $header;
 }
 
-sub process {
+sub checkout {
     my ( $self, $args ) = @_;
 
     my $header = $self->formSOAPHeader();
@@ -193,20 +192,36 @@ __END__
 
 =head1 NAME
 
-CyberSource::SOAP::Checkout - A Modern Perl interface to CyberSource's SOAP API.
+Checkout::CyberSource::SOAP - A Modern Perl interface to CyberSource's
+SOAP API.
+
+=head1 NOTICE
+
+Please note that you must use your own transaction id and key, even for
+testing purposes on CyberSource's test server. This module defaults to
+using the test server, so when you go into production, set production to
+a true value in your configuration file or in your construction.
 
 =head1 SYNOPSIS
 
 This is for single transactions of variable quantity.
 
-You can use this as a standalone module by sending it a payment information hashref. You will receive a C::S::Checkout::Response object containing either a success message or an error message. If successful, you will also receive a payment_info hashref, suitable for storing in your database.
+You can use this as a standalone module by sending it a payment information
+hashref. You will receive a Checkout::CyberSource::SOAP::Response object
+containing either a success message or an error message. If successful, you
+will alsoreceive a payment_info hashref, suitable for storing in your
+database.
 
-You must map the keys in the hashref you send (which also sets the keys for the payment_info hashref you receive back). CyberSource uses camelCased and otherwise idiosyncratic identifiers here, so this mapping cannot be avoided.
+You B<must> map the keys in the hashref you send (which also sets the keys
+for the payment_info hashref you receive back). CyberSource uses camelCased
+and otherwise idiosyncratic identifiers here, so this mapping cannot be
+avoided.
 
-You can use this in a Catalyst application by using Catalyst::Model::Adaptor and setting your configuration file somewhat like this:
+You can use this in a Catalyst application by using L<Catalyst::Model::Adaptor>
+and setting your configuration file somewhat like this:
 
     <Model::Checkout>
-        class   CyberSource::SOAP::Checkout
+        class   Checkout::CyberSource::SOAP
         <args>
             id  your_cybersource_id
             key your cybersource_key
@@ -231,14 +246,16 @@ You can use this in a Catalyst application by using Catalyst::Model::Adaptor and
         </args>
     </Model::Checkout>
 
-So that in your payment processing controller you would get validated data back from a shopping cart or other form and do something like this:
+So that in your payment processing controller you would get validated data
+back from a shopping cart or other form and do something like this:
     
-    # If your checkout form is valid, call C::S::Checkout's process method:
+    # If your checkout form is valid, call Checkout::CyberSource::SOAP's
+    # checkout method:
 
-    my $response = $c->model('Checkout')->process( $c->req->params );
+    my $response = $c->model('Checkout')->checkout( $c->req->params );
 
-
-    # Check the response object, branch accordingly.
+    # Check the Checkout::CyberSource::SOAP::Response object, branch
+    # accordingly.
 
     if ( $response->success ) {
 
@@ -259,7 +276,42 @@ So that in your payment processing controller you would get validated data back 
 
 =head1 WHY?
 
-Folks often have a need for simple and quick, but "enterprise-level" payment-gateway integration. CyberSource's Simple Order API still requires that you compile a binary, and it won't compile on 64-bit processors (no, not OSes, but processors, i.e., what I imagine to be most development workstations by now). So you have to use the SOAP API, which is unwieldy, not least because it uses XML. May no one struggle with this again.  :)
+Folks often have a need for simple and quick, but "enterprise-level" payment-
+gateway integration. CyberSource's Simple Order API still requires that you
+compile a binary, and it won't compile on 64-bit processors (no, not OSes, but
+processors, i.e., what I imagine to be most development workstations by now).
+So you have to use the SOAP API, which is unwieldy, not least because it uses
+XML. May no one struggle with this again.  :)
+
+=head1 METHODS
+
+=over
+
+=item checkout
+
+The only method you need to call.
+
+=item addComplexType
+
+Internal method for construction of the SOAP object.
+
+=item addField
+
+Internal method for construction of the SOAP object.
+
+=item addItem
+
+Internal method for construction of the SOAP object.
+
+=item addService
+
+Internal method for construction of the SOAP object.
+
+=item formSOAPHeader
+
+Internal method for construction of the SOAP object.
+
+=back
 
 =head1 AUTHOR
 
