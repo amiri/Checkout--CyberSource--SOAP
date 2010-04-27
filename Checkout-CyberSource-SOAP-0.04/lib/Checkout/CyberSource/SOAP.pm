@@ -1,6 +1,6 @@
 package Checkout::CyberSource::SOAP;
 BEGIN {
-  $Checkout::CyberSource::SOAP::VERSION = '0.02';
+  $Checkout::CyberSource::SOAP::VERSION = '0.04';
 }
 
 use Moose;
@@ -9,8 +9,6 @@ use Time::HiRes qw/gettimeofday/;
 use namespace::autoclean;
 
 use 5.008_001;
-
-extends 'Catalyst::Model';
 
 has 'id' => (
     is  => 'ro',
@@ -200,11 +198,10 @@ __END__
 
 =head1 NAME
 
+Checkout::CyberSource::SOAP
 
-=head1 VERSION
+=head2 WHAT? 
 
-version 0.02
-B<Checkout::CyberSource::SOAP>
 A Modern Perl interface to CyberSource's
 SOAP API.
 

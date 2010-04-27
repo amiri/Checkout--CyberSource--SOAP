@@ -7,8 +7,6 @@ use namespace::autoclean;
 
 use 5.008_001;
 
-extends 'Catalyst::Model';
-
 has 'id' => (
     is  => 'ro',
     isa => 'Str',
@@ -197,7 +195,10 @@ __END__
 
 =head1 NAME
 
-B<Checkout::CyberSource::SOAP>
+Checkout::CyberSource::SOAP
+
+=head2 WHAT? 
+
 A Modern Perl interface to CyberSource's
 SOAP API.
 

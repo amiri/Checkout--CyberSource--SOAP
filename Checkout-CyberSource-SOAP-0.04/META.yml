@@ -21,4 +21,4 @@ requires:
   namespace::autoclean: 0
 resources:
   repository: http://github.com/amiri/Checkout--CyberSource--SOAP
-version: 0.01
+version: 0.04

@@ -6,9 +6,6 @@ use Test::More;
 use Test::Moose;
 use Data::Dumper;
 
-BEGIN { use_ok 'Checkout::CyberSource::SOAP' }
-BEGIN { use_ok 'Checkout::CyberSource::SOAP::Response' }
-
 my $id  = $ENV{CYBS_ID};
 my $key = $ENV{CYBS_KEY};
 
@@ -19,6 +16,10 @@ plan skip_all => '
 #                                                               #            
 #################################################################'
     unless ( $id && $key );
+plan tests => 14;
+
+use_ok 'Checkout::CyberSource::SOAP';
+use_ok 'Checkout::CyberSource::SOAP::Response';
 
 my $column_map = {
     firstName       => "firstname",
