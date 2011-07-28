@@ -1,9 +1,0 @@
-LICENSE
-MANIFEST
-META.yml
-Makefile.PL
-dist.ini
-lib/Checkout/CyberSource/SOAP.pm
-lib/Checkout/CyberSource/SOAP/Response.pm
-t/00-load.t
-t/model.t
