@@ -1,6 +1,8 @@
 package Checkout::CyberSource::SOAP;
-
 use Moose;
+BEGIN {
+	# VERSION
+}
 use SOAP::Lite;
 use Time::HiRes qw/gettimeofday/;
 use namespace::autoclean;
