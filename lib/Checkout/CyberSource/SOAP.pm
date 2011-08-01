@@ -7,6 +7,8 @@ use SOAP::Lite;
 use Time::HiRes qw/gettimeofday/;
 use namespace::autoclean;
 
+use Checkout::CyberSource::SOAP::Response;
+
 use 5.008_001;
 
 has 'id' => (
