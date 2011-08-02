@@ -11,9 +11,9 @@ my $key = $ENV{CYBS_KEY};
 
 plan skip_all => '
 #################################################################
-#                                                               #            
+#                                                               #
 #  You MUST set $ENV{CYBS_ID} and $ENV{CYBS_KEY} to test this!  #
-#                                                               #            
+#                                                               #
 #################################################################'
     unless ( $id && $key );
 plan tests => 14;
