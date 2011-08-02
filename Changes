@@ -1,3 +1,5 @@
 Revison history for {{$dist->name}}
 
 {{$NEXT}}
+
+Some bugfixes from xenoterracide.
