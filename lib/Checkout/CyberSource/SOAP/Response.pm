@@ -395,17 +395,11 @@ __PACKAGE__->meta->make_immutable;
     When you call Checkout::CyberSource::SOAP::process, your response object
     is a Checkout::CyberSource::SOAP::Response.
 
-=head1 METHODS
-
-=over
-
-=item respond
+=method respond
 
 This basically just maps response codes from Checkout::CyberSource::SOAP to a
 function returning success or failure--there are many ways to fail, thus most
 of the entries in the dispatch table.
-
-=back
 
 =head1 CONTRIBUTORS
 

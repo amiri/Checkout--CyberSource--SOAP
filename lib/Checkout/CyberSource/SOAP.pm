@@ -335,35 +335,29 @@ form and do something like this:
     }
 
 
-=head1 METHODS
-
-=over
-
-=item checkout
+=method item checkout
 
 The only method you need to call.
 
-=item addComplexType
+=method addComplexType
 
 Internal method for construction of the SOAP object.
 
-=item addField
+=method addField
 
 Internal method for construction of the SOAP object.
 
-=item addItem
+=method addItem
 
 Internal method for construction of the SOAP object.
 
-=item addService
+=method addService
 
 Internal method for construction of the SOAP object.
 
-=item formSOAPHeader
+=method formSOAPHeader
 
 Internal method for construction of the SOAP object.
-
-=back
 
 =head1 CONTRIBUTORS
 
