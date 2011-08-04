@@ -1,7 +1,7 @@
 package Checkout::CyberSource::SOAP;
 use Moose;
 BEGIN {
-	# VERSION
+    # VERSION
 }
 use SOAP::Lite;
 use Time::HiRes qw/gettimeofday/;
@@ -220,7 +220,7 @@ Please note that you B<must> use your own CyberSource id and key, even for
 testing purposes on CyberSource's test server. This module defaults to
 using the test server, so when you go into production, set production to
 a true value in your configuration file or in your object construction, e.g.,
-    
+
     my $checkout = Checkout::CyberSource::SOAP->new(
         id         => $id,
         key        => $key,
@@ -310,7 +310,7 @@ production is commented out. You will want to set production to true when you
 are ready to process real transactions. So that in your payment processing
 controller you would get validated data back from a shopping cart or other
 form and do something like this:
-    
+
     # If your checkout form is valid, call Checkout::CyberSource::SOAP's
     # checkout method:
 
@@ -328,7 +328,7 @@ form and do something like this:
         $c->flash( status_msg => $response->success->{message} );
         $c->res->redirect($c->uri_for('I_got_your_money'));
     }
-    
+
     else {
         $c->stash( error_msg => $response->error->{message} );
         return;

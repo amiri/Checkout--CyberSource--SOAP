@@ -1,7 +1,7 @@
 package Checkout::CyberSource::SOAP::Response;
 use Moose;
 BEGIN {
-	# VERSION
+    # VERSION
 }
 use Business::CreditCard;
 use namespace::autoclean;
