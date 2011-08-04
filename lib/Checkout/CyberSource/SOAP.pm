@@ -195,7 +195,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-__END__
+# ABSTRACT: A Modern Perl interface to CyberSource's SOAP API
 
 =head1 NAME
 
