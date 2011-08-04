@@ -197,15 +197,6 @@ __PACKAGE__->meta->make_immutable;
 
 # ABSTRACT: A Modern Perl interface to CyberSource's SOAP API
 
-=head1 NAME
-
-Checkout::CyberSource::SOAP
-
-=head2 WHAT? 
-
-A Modern Perl interface to CyberSource's
-SOAP API.
-
 =head1 WHY?
 
 Folks often have a need for simple and quick, but "enterprise-level" payment-
@@ -374,24 +365,10 @@ Internal method for construction of the SOAP object.
 
 =back
 
-=head1 AUTHOR
-
-Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
-
 =head1 CONTRIBUTORS
 
 Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
 Caleb Cushing (xenoterracide) E<lt>xenoterracide@gmail.comE<gt>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2011 the Checkout::CyberSource::SOAP L</AUTHOR> and
-L</CONTRIBUTORS> as listed above.
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 

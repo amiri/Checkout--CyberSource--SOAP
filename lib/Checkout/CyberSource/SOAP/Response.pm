@@ -388,10 +388,6 @@ __PACKAGE__->meta->make_immutable;
 
 # ABSTRACT: a response object for CyberSource SOAP responses
 
-=head1 NAME
-
-Checkout::CyberSource::SOAP::Response
-
 =head1 SYNOPSIS
 
     my $response = $c->model('Checkout')->checkout( $c->req->params );
@@ -411,23 +407,9 @@ of the entries in the dispatch table.
 
 =back
 
-=head1 AUTHOR
-
-Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
-
 =head1 CONTRIBUTORS
 
 Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2010 the Checkout::CyberSource::SOAP::Response
-L</AUTHOR> and L</CONTRIBUTORS> as listed above.
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
