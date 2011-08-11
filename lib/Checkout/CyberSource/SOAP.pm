@@ -1,7 +1,7 @@
 package Checkout::CyberSource::SOAP;
 use Moose;
 BEGIN {
-	# VERSION
+    # VERSION
 }
 use SOAP::Lite;
 use Time::HiRes qw/gettimeofday/;
@@ -195,16 +195,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-__END__
-
-=head1 NAME
-
-Checkout::CyberSource::SOAP
-
-=head2 WHAT? 
-
-A Modern Perl interface to CyberSource's
-SOAP API.
+# ABSTRACT: A Modern Perl interface to CyberSource's SOAP API
 
 =head1 WHY?
 
@@ -229,7 +220,7 @@ Please note that you B<must> use your own CyberSource id and key, even for
 testing purposes on CyberSource's test server. This module defaults to
 using the test server, so when you go into production, set production to
 a true value in your configuration file or in your object construction, e.g.,
-    
+
     my $checkout = Checkout::CyberSource::SOAP->new(
         id         => $id,
         key        => $key,
@@ -319,7 +310,7 @@ production is commented out. You will want to set production to true when you
 are ready to process real transactions. So that in your payment processing
 controller you would get validated data back from a shopping cart or other
 form and do something like this:
-    
+
     # If your checkout form is valid, call Checkout::CyberSource::SOAP's
     # checkout method:
 
@@ -337,61 +328,41 @@ form and do something like this:
         $c->flash( status_msg => $response->success->{message} );
         $c->res->redirect($c->uri_for('I_got_your_money'));
     }
-    
+
     else {
         $c->stash( error_msg => $response->error->{message} );
         return;
     }
 
 
-=head1 METHODS
-
-=over
-
-=item checkout
+=method item checkout
 
 The only method you need to call.
 
-=item addComplexType
+=method addComplexType
 
 Internal method for construction of the SOAP object.
 
-=item addField
+=method addField
 
 Internal method for construction of the SOAP object.
 
-=item addItem
+=method addItem
 
 Internal method for construction of the SOAP object.
 
-=item addService
+=method addService
 
 Internal method for construction of the SOAP object.
 
-=item formSOAPHeader
+=method formSOAPHeader
 
 Internal method for construction of the SOAP object.
-
-=back
-
-=head1 AUTHOR
-
-Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
 
 =head1 CONTRIBUTORS
 
 Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
 Caleb Cushing (xenoterracide) E<lt>xenoterracide@gmail.comE<gt>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2011 the Checkout::CyberSource::SOAP L</AUTHOR> and
-L</CONTRIBUTORS> as listed above.
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
