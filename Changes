@@ -1,5 +1,5 @@
 Revison history for {{$dist->name}}
 
 {{$NEXT}}
-
-Some bugfixes from xenoterracide.
+0.07	2011-08-02
+	- Some bugfixes from xenoterracide.

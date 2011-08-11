@@ -1,7 +1,7 @@
 package Checkout::CyberSource::SOAP::Response;
 use Moose;
 BEGIN {
-	# VERSION
+    # VERSION
 }
 use Business::CreditCard;
 use namespace::autoclean;
@@ -386,11 +386,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-__END__
-
-=head1 NAME
-
-Checkout::CyberSource::SOAP::Response
+# ABSTRACT: a response object for CyberSource SOAP responses
 
 =head1 SYNOPSIS
 
@@ -399,35 +395,15 @@ Checkout::CyberSource::SOAP::Response
     When you call Checkout::CyberSource::SOAP::process, your response object
     is a Checkout::CyberSource::SOAP::Response.
 
-=head1 METHODS
-
-=over
-
-=item respond
+=method respond
 
 This basically just maps response codes from Checkout::CyberSource::SOAP to a
 function returning success or failure--there are many ways to fail, thus most
 of the entries in the dispatch table.
 
-=back
-
-=head1 AUTHOR
-
-Amiri Barksdale E<lt>amiri@metalabel.comE<gt>
-
 =head1 CONTRIBUTORS
 
 Tomas Doran (t0m) E<lt>bobtfish@bobtfish.netE<gt>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2010 the Checkout::CyberSource::SOAP::Response
-L</AUTHOR> and L</CONTRIBUTORS> as listed above.
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
